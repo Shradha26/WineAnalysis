@@ -88,7 +88,5 @@ table(white$rating, pred2)
 ## Significant increase in accuracy with use of this model
 ```
 
+=======
 
-
-
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
