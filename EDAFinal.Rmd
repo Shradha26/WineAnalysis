@@ -1,0 +1,58 @@
+---
+title: "eda"
+output: html_document
+---
+
+```{r}
+white <- read.csv("wineQualityWhites.csv")
+
+```
+
+```{r}
+#univariate
+
+library(ggplot2)
+library(lattice)
+par(mar = rep(2, 4))
+par(mfrow=c(3,4))
+colnames<-dimnames(white)[[2]]
+for(i in 2:13)
+{
+  d<-density(white[,i])
+  plot(d,type="n",main=colnames[i])
+  polygon(d,col="red",border="gray")
+}
+
+```
+
+
+```{r}
+library(ggplot2)
+white$rating[5 >= white$quality ] = "Poor"
+white$rating[5< white$quality & white$quality < 7] = "Average"
+white$rating[7<= white$quality ] = "Good"
+white$rating = as.factor(white$rating)
+
+white$rating = relevel(white$rating, "Poor")
+
+ggplot(data = white, aes(x = white$rating)) + 
+  geom_bar()
+table(white$rating)
+
+##Limiting the quality of wine into three categories of Poor, Good and Great to be able to differntiate patterns in each category.
+
+```
+
+```{r}
+#multivariate
+
+library(lattice)
+par(mar = rep(2, 4))
+par(mfrow=c(3,4))
+colnames<-dimnames(white)[[2]]
+for(i in 2:12)
+{
+  boxplot(white[,i]~white$rating,main=colnames[i])
+}
+
+```
