@@ -1,0 +1,94 @@
+---
+title: "SMOTE_wine"
+output: html_document
+---
+
+```{r}
+library(DMwR)
+smwhite <- read.csv("wineQualityWhites.csv")
+testwhite<-read.csv("wineQualityWhites.csv")
+print(table(smwhite$quality))
+```
+
+
+```{r}
+library(ggplot2)
+testwhite$rating[5 >= testwhite$quality ] = "Poor"
+testwhite$rating[5< testwhite$quality & testwhite$quality < 7] = "Average"
+testwhite$rating[7<= testwhite$quality ] = "Good"
+testwhite$rating = as.factor(testwhite$rating)
+
+testwhite$rating = relevel(testwhite$rating, "Poor")
+
+ggplot(data = testwhite, aes(x = testwhite$rating)) + 
+  geom_bar()
+table(testwhite$rating)
+
+##Limiting the quality of wine into three categories of Poor, Good and Great to be able to differntiate patterns in each category.
+
+```
+```{r}
+library(lattice)
+library(grid)
+library(DMwR)
+library(xts)
+library("TTR")
+testwhite$quality <- factor(ifelse(testwhite$quality == "Good","rare","common"))
+testwhite$rating <- as.factor(testwhite$rating)
+newdata <- SMOTE(rating ~ ., testwhite, perc.over = 350, perc.under=300)
+
+ggplot(data = newdata, aes(x = newdata$rating)) + 
+  geom_bar()
+table(newdata$rating)
+
+```
+
+```{r}
+library(rpart)
+library(rpart.plot)
+
+model1 = rpart(rating ~ . -X -quality, data = newdata, method="class",cp=0.008)
+prp(model1)
+
+##variables to predict quality: alcohol, free sulfur dioxide, pH, sulphate and volatile acidity by adjusting the cp value.
+
+
+pred1 = predict(model1, type="class")
+
+rpart.plot(model1)
+printcp(model1)
+plotcp(model1)
+summary(model1)
+
+##The complexity parameter is the amount by which splitting that node improved the relative error.
+##Confusion Matrix
+table(newdata$rating, pred1)
+
+
+##Accuracy = 0.62
+
+##Pruning the Tree
+
+##pfit <- prune(model1, cp = model1$cptable[which.min(model1$cptable[,"xerror"]),"CP"])
+##prp(pfit)
+
+```
+
+```{r}
+##Random Forest Model
+##Random forests improve predictive accuracy by generating a large number of bootstrapped trees (based on random samples of variables), classifying a case using each tree in this new "forest", and deciding a final predicted outcome by combining the results across all of the trees (an average in regression, a majority vote in classification). Breiman and Cutler's random forest approach is implimented via the randomForest package.
+
+library(randomForest)
+
+model2 = randomForest(rating ~ . -X -quality, data = newdata)
+
+pred2 = predict(model2)
+
+print(model2) 
+importance(model2)        ##used to find importance of each predictor 
+
+table(newdata$rating, pred2)
+
+##Accuracy = 0.96
+## Significant increase in accuracy with use of this model
+```
