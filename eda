@@ -1,0 +1,29 @@
+wines<-read.csv('wineQualityWhites.csv',header=TRUE,sep=",")
+install.packages("ggplot2")
+library(ggplot2)
+
+#univariate plots
+
+library(lattice)
+par(mar = rep(2, 4))
+par(mfrow=c(3,4))
+colnames<-dimnames(wines)[[2]]
+for(i in 2:13)
+{
+  d<-density(wines[,i])
+  plot(d,type="n",main=colnames[i])
+  polygon(d,col="red",border="gray")
+}
+
+
+winecheck<-read.table('wineQualityWhites.csv',header=TRUE,sep=",")
+#multivariate plots
+
+library(lattice)
+par(mar = rep(2, 4))
+par(mfrow=c(3,4))
+colnames<-dimnames(wines)[[2]]
+for(i in 2:12)
+{
+  boxplot(winecheck[,i]~winecheck$quality,main=colnames[i])
+}
