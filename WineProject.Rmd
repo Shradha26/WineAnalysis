@@ -42,6 +42,7 @@ table(white$rating)
 library(rpart)
 library(rpart.plot)
 
+##  fit$cptable[which.min(fit$cptable[,"xerror"]),"CP"]
 model1 = rpart(rating ~ . -X -quality, data = white, method="class",cp=0.008)
 prp(model1)
 
