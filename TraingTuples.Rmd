@@ -36,9 +36,9 @@ white.train$rating = as.factor(white.train$rating)
 
 white.train$rating = relevel(white.train$rating, "Poor")
 
-ggplot(data = white, aes(x = white$rating)) + 
+ggplot(data = white.train, aes(x = white.train$rating)) + 
   geom_bar()
-table(white$rating)
+table(white.train$rating)
 
 ##Limiting the quality of wine into three categories of Poor, Good and Great to be able to differntiate patterns in each category.
 
@@ -55,14 +55,14 @@ white.test$rating = relevel(white.test$rating, "Poor")
 library(rpart)
 library(rpart.plot)
 
-model2 = rpart(rating ~ . -X -quality, data = white.test, method="class",cp=0.008)
-prp(model1)
+model2 = rpart(rating ~ . -X -quality, data = white.train, method="class",cp=0.008)
+prp(model2)
 
 ##variables to predict quality: alcohol, free sulfur dioxide, pH, sulphate and volatile acidity by adjusting the cp value.
 
 prp(model2)
 
-pred2 = predict(model2, type ="class")
+pred2 = predict(model2, newdata = white.test, type ="class")
 
 rpart.plot(model2)
 printcp(model2)
@@ -71,9 +71,9 @@ summary(model2)
 
 ##The complexity parameter is the amount by which splitting that node improved the relative error.
 ##Confusion Matrix
-table(white.train$rating, pred2)
+table(pred2,white.test$rating)
 
-##Accuracy = (868 + 1651 + 310) / total = 0.58
+##Accuracy = (451 +578+151) / 1898 = 0.62
 
 ##Pruning the Tree
 
@@ -89,16 +89,16 @@ table(white.train$rating, pred2)
 
 library(randomForest)
 
-model2 = randomForest(rating ~ . -X -quality, data = white)
+model3 = randomForest(rating ~ . -X -quality, data = white.train)
 
-pred2 = predict(model2)
+pred3 = predict(model3,newdata=white.test)
 
-print(model2) 
-importance(model2)        ##used to find importance of each predictor 
+print(model3) 
+importance(model3)        ##used to find importance of each predictor 
 
-table(white$rating, pred2)
+table(white.test$rating, pred3)
 
-##Accuracy = 0.74
+##Accuracy = 0.69
 ## Significant increase in accuracy with use of this model
 ```
 
